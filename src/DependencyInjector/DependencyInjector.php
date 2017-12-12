@@ -2,7 +2,6 @@
 
 namespace Fastero\DependencyInjector;
 
-
 use Fastero\DependencyInjector\Exception\LoadServiceException;
 use Fastero\DependencyInjector\Exception\WrongConfigurationException;
 
@@ -110,6 +109,8 @@ class DependencyInjector
             }
         }catch (WrongConfigurationException $exception){
             throw new LoadServiceException(sprintf("Wrong configuration for service \"%s\"", $serviceName), 0, $exception);
+        }catch (\ArgumentCountError|\TypeError $exception){
+            throw new LoadServiceException(sprintf("Wrong parameters for service \"%s\"", $serviceName), 0, $exception);
         }
     }
 
@@ -151,7 +152,7 @@ class DependencyInjector
                     break;
                 }else{
                     throw new LoadServiceException(
-                        sprintf('Can\'t autoload "%s" service because constructor parameter "%s" is required but typehint is not a class name ',
+                        sprintf('Can\'t autoload "%s" service because constructor parameter "%s" is required but typehint is not a class name',
                             $className, $parameter->getName()));
                 }
             }
