@@ -13,7 +13,11 @@
 
     <testsuites>
         <testsuite name="DependencyInjector">
-            <directory>Tests/src/DependencyInjector</directory>
+            <directory >Tests/src/DependencyInjector</directory>
+            <exclude>Tests/src/Config</exclude>
+        </testsuite>
+        <testsuite name="DIConfigurator">
+            <directory>Tests/src/Config</directory>
         </testsuite>
     </testsuites>
 

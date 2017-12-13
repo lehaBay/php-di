@@ -4,7 +4,7 @@
 namespace Fastero\DependencyInjector\Exception;
 
 
-class LoadServiceException extends DIException
+class ConfigurationException extends DIException
 {
 
 }

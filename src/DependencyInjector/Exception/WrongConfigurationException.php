@@ -3,7 +3,7 @@
 namespace Fastero\DependencyInjector\Exception;
 
 
-class WrongConfigurationException extends \RuntimeException
+class WrongConfigurationException extends DIException
 {
 
 }
