@@ -30,6 +30,36 @@ class DependencyInjector
         !empty($configuration) && $this->replaceConfiguration($configuration);
     }
 
+    /**
+     * adds configuration to a single service as apposite of replaceConfiguration
+     * services configurations set by this function will override settings made by replaceConfiguration
+     * if it called before replaceConfiguration and vice verse
+     * @param $serviceName
+     * @param $serviceConfiguration
+     */
+    public function setServiceConfiguration($serviceName, $serviceConfiguration){
+        $this->configuration['services'][$serviceName] = $serviceConfiguration;
+    }
+
+    /**
+     * set service like it was created by DI itself. Next time
+     * ->get($serviceName) is called it will return $service whatever it is
+     * next time ->has($serviceName) called it will return true.
+     * **however** ->getNew($serviceName) will return service according
+     * to configuration not $service
+     * this method should be used with caution
+     * @param $serviceName
+     * @param $service
+     */
+    public function replaceService($serviceName, $service){
+        $this->loadedServices[$serviceName] = $service;
+    }
+
+    /**
+     * replace all the configuration made before with a new one
+     * does not take any effect on services that already actually created (->get())
+     * @param $configuration
+     */
     public function replaceConfiguration($configuration){
         $this->configuration = $configuration;
         if(isset($configuration['autoload'])){
@@ -37,6 +67,17 @@ class DependencyInjector
         }
         $this->aliases = $configuration['aliases'] ?? [];
         $this->services = $configuration['services'] ?? [];
+    }
+
+    /**
+     * Add one or more aliases to service $serviceName
+     * @param $serviceName
+     * @param array ...$aliasServiceName
+     */
+    public function addServiceAlias($serviceName, ...$aliasServiceName){
+        foreach ($aliasServiceName as $alias){
+            $this->aliases[$alias] = $serviceName;
+        }
     }
 
     /**
@@ -70,7 +111,8 @@ class DependencyInjector
     public function has($name){
         $realName = $this->aliases[$name] ?? $name;
         return isset($this->services[$realName])
-            || ($this->autoload && class_exists($realName));
+            || isset($this->loadedServices[$realName])
+            ||($this->autoload && class_exists($realName));
     }
 
     protected function loadService($serviceName){
