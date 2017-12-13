@@ -8,9 +8,7 @@ use Fastero\DependencyInjector\Exception\WrongConfigurationException;
 
 class DependencyInjector
 {
-    protected $configuration = [];
-
-    /**
+     /**
      * @var array services that already loaded by the container
      */
     protected $loadedServices = [];
@@ -48,7 +46,7 @@ class DependencyInjector
      * @param $serviceConfiguration
      */
     public function setServiceConfiguration($serviceName, $serviceConfiguration){
-        $this->configuration['services'][$serviceName] = $serviceConfiguration;
+        $this->services[$serviceName] = $serviceConfiguration;
     }
 
     /**
@@ -71,7 +69,6 @@ class DependencyInjector
      * @param $configuration
      */
     public function replaceConfiguration($configuration){
-        $this->configuration = $configuration;
         if(isset($configuration['autoload'])){
             $this->autoload = (bool)$configuration['autoload'];
         }
