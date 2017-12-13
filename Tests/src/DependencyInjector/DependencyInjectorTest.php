@@ -239,6 +239,56 @@ class DependencyInjectorTest extends TestCase
     }
 
 
+    public function testDependencyInjectorSetServiceConfiguration(){
+        $di = new DependencyInjector();
+        $di->setServiceConfiguration("some_blahblah_service",
+            [
+                'class' => ClassWithCorrectDependencies::class,
+                'autowire' => true
+            ]);
+        $service = $di->get("some_blahblah_service");
+        $this->assertInstanceOf(ClassWithCorrectDependencies::class, $service);
+    }
 
+    public function testDependencyInjectorSetServiceConfigurationReplace(){
+        $di = new DependencyInjector(["services"=> ["some_blahblah_servie" =>["class" => "some_blahblah_service"]]]);
+        $di->setServiceConfiguration("some_blahblah_service",
+            ['class' => ClassWithoutDependencies::class ]);
+        $service = $di->get("some_blahblah_service");
+        $this->assertInstanceOf(ClassWithoutDependencies::class, $service);
+    }
+
+    public function testDependencyInjectorSetAutoloadFalse(){
+        $this->expectException(LoadServiceException::class);
+        $this->expectExceptionMessage(sprintf('Unknown service "%s"', ClassWithoutDependencies::class));
+        $di = new DependencyInjector();
+        $di->setAutoload(false);
+        $di->get(ClassWithoutDependencies::class);
+    }
+
+    public function testDependencyInjectorReplaceService(){
+
+        $di = new DependencyInjector($this->diConfiguration);
+        $di->get(ClassWithoutDependencies::class);
+        $di->replaceService(ClassWithoutDependencies::class, 33);
+        $di->replaceService("fortytwo", 42);
+        $service1 = $di->get(ClassWithoutDependencies::class);
+        $service2 = $di->get("fortytwo");
+        $this->assertEquals(33, $service1);
+        $this->assertEquals(42, $service2);
+
+    }
+    public function testDependencyAddServiceAlias(){
+
+        $di = new DependencyInjector($this->diConfiguration);
+        $di->addServiceAlias(ClassWithoutDependencies::class, "dump_alias", "another_alias");
+        $service1 = $di->get(ClassWithoutDependencies::class);
+        $service2 = $di->get("dump_alias");
+        $service3 = $di->get("another_alias");
+        $this->assertSame($service1, $service2);
+        $this->assertSame($service1, $service3);
+
+
+    }
 
 }
