@@ -31,6 +31,16 @@ class DependencyInjector
     }
 
     /**
+     * true if DI should use autoload for services that does not exist
+     * in configuration. In that case it will try to load classes with the same name as
+     * required service and use autowire provide constructor arguments
+     * @param bool $autoload
+     */
+    public function setAutoload(bool $autoload){
+        $this->autoload = $autoload;
+    }
+
+    /**
      * adds configuration to a single service as apposite of replaceConfiguration
      * services configurations set by this function will override settings made by replaceConfiguration
      * if it called before replaceConfiguration and vice verse
