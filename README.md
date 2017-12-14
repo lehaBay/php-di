@@ -1,9 +1,22 @@
 # PHP Dependency Injector
 
-Simple and fast Dependency Injector. It support autowire and autoloading (can automatically load 
-classes that are not in configuration)
+Simple and fast Dependency Injector. It supports autowire and autoloading 
+(can automatically load classes that are not defined in configuration)
 
-It does not support annotations because it seems unreasonable
+The main job of Dependency Injector is to Inject Dependencies (whoa!) not to 
+configure every single class(service).
+
+Really, that can be very annoying to add every new class to to the configuration 
+and that's where **autoloading** come.
+
+If you have class with constructor that have **proper typehints** for all required 
+parameters **then no configuration needed**, just go get this class by it's full name 
+from the DependencyInjector. Just make sure autoloading is on(which is by default). 
+
+This method has very **small performance overhead** (same as using autowire)
+
+Of course if some configuration needed it can be done
+
 
 # Easy to install with **composer**
 
@@ -11,31 +24,118 @@ It does not support annotations because it seems unreasonable
 $ composer require fastero/php-di
 ```
 
-#Usage
+# Usage
 
 ```php
 
 $di = new \Fastero\DependencyInjector\DependencyInjector();
 
-$kernel = $di->get(\SomeProject\Kernel::class);
+$user = $di->get(User::class);
 
 ```
-As easy as this, you don't need to specify any dependencies or any configuration at all it you have proper type hints in the constructor
+As easy as this, no configuration needed just proper typehins for the constructor(see below)
 
 
-let's see for example Kernel class:
-
+More complete examples:
+let's create some classes to work with
 ```php
-class Kernel{
-    public function __construct(ConfigureManager $configuration){
-    
+class Company{
+
+}
+class User{
+    public $company;
+    public $language;
+    //typehint Company says that first parameter expected to be of 
+    //type Company and DependencyInjetor can understand this
+    public function __construct(Company $userCompany, $language = null)
+    {
+        $this->company = $userCompany;
+        $this->language = $language;
     }
 }
+
+class UserFactory{
+    public static function create(){
+        return new User(new Company(), 'en');
+    }
+}
+
 ```
 
-It will create a $kernel class with ConfigureManager injected in the constructor
+Now we can configure our DependencyInjector using utility 
+**ServiceConfiguration** class like that:
+```php
+$configuration = [
+        "services" =>[
+            Company::class => ServiceConfiguration::setupClass(Company::class) //service that will create object of Company
+                ->get(),//return complete configuration, should be very last call for every definition
+            User::class => ServiceConfiguration::setupClass(User::class) //service that will create object of User
+                ->addParameterService(Company::class) //first parameter in the constructor will service with name Company::class
+                ->addParameterValue('fr') //second parameter will be value "fr"
+                ->get(),//return complete configuration
+            'forty-two' => ServiceConfiguration::setupClosure(function ($di, $serviceName){//closure will be called and returned value is a service
+                        return 42;
+                    })
+                ->get(),
+        ]
+    ];
+```
 
-#Configure parameters manually
+Using **ServiceConfiguration** is recommended way of creating configuration for services even though actual configuration is a simple array and can be created manually but this utility class helps to avoid mistakes.
+Using this class does not create bunch of objects so it has almost no overhead. Downside is that one have to call ->get() at the very end of each definition
+
+
+```php
+$configuration = [
+        "services" =>[
+            Company::class => ServiceConfiguration::setupClass(Company::class) //service that will create object of Company
+                ->get(),//return complete configuration, should be very last call for every definition
+            User::class => ServiceConfiguration::setupClass(User::class) //service that will create object of User
+                ->addParameterService(Company::class) //first parameter in the constructor will service with name Company::class
+                ->addParameterValue('fr') //second parameter will be value "fr"
+                ->get(),//return complete configuration
+            'forty-two' => ServiceConfiguration::setupClosure(function ($di, $serviceName){//closure will be called and returned value is a service
+                        return 42;
+                    })
+                ->get(),
+        ]
+    ];
+    
+```
+So, creating configuration must be started with one of the **->setup\*(..)** methods and finished with **->get()** method which actually returns configuration array
+
+```php
+$di = new Fastero\DependencyInjector\DependencyInjector($configuration);
+
+//if you need to define some service after configuration is set there is a way
+//here we create service type factory but sure thing it can be any supported type
+$UserEngServiceConfiguration =
+    ServiceConfiguration::setupFactory([UserFactory::class, 'create'])// call_user_function_array([UserFactory::class, 'create'], $params) will be called and return value is a service
+        ->get();
+
+$di->setServiceConfiguration('UserEng', $UserEngServiceConfiguration);
+$service = $di->get(User::class );
+
+var_dump($service instanceof User);
+var_dump($service->language);
+
+$service = $di->get("UserEng" );
+var_dump($service instanceof User);
+var_dump($service->language);
+
+$service = $di->get("forty-two");
+var_dump($service);
+```
+result:
+
+```
+bool(true)
+string(2) "fr"
+bool(true)
+string(2) "en"
+int(42)
+
+```
 
 
 MIT Licensed, http://www.opensource.org/licenses/MIT
