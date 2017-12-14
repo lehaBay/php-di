@@ -59,9 +59,9 @@ class UserFactory{
 }
 
 ```
-
-Now we can configure our DependencyInjector using utility 
-**ServiceConfiguration** class like so:
+No configuration needed by default, but if you must
+here is how to use utility class **ServiceConfiguration** 
+to add some configuration:
 ```php
 $configuration = [
         "services" =>[
