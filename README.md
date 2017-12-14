@@ -1,21 +1,19 @@
 # PHP Dependency Injector
 
-Simple and fast Dependency Injector. It supports autowire and autoloading 
-(can automatically load classes that are not defined in configuration)
+**Simple** and **fast** Dependency Injector. It supports autowire and autoloading.
 
 The main job of Dependency Injector is to Inject Dependencies (whoa!) not to 
-configure every single class(service).
+configure every single class-service.
 
-Really, that can be very annoying to add every new class to to the configuration 
-and that's where **autoloading** come.
+To reduce configuration here it comes, **autoloading**
 
-If you have class with constructor that have **proper typehints** for all required 
-parameters **then no configuration needed**, just go get this class by it's full name 
-from the DependencyInjector. Just make sure autoloading is on(which is by default). 
+Just go get class by it's **full name** 
+from the DependencyInjector. 
+Make sure autoloading is on (which is by default) and 
+constructor has proper typehints(see example below) 
 
-This method has very **small performance overhead** (same as using autowire)
 
-Of course if some configuration needed it can be done
+Of course if some configuration needed it can be done.
 
 
 # Easy to install with **composer**
@@ -63,7 +61,7 @@ class UserFactory{
 ```
 
 Now we can configure our DependencyInjector using utility 
-**ServiceConfiguration** class like that:
+**ServiceConfiguration** class like so:
 ```php
 $configuration = [
         "services" =>[
@@ -81,8 +79,11 @@ $configuration = [
     ];
 ```
 
-Using **ServiceConfiguration** is recommended way of creating configuration for services even though actual configuration is a simple array and can be created manually but this utility class helps to avoid mistakes.
-Using this class does not create bunch of objects so it has almost no overhead. Downside is that one have to call ->get() at the very end of each definition
+Using **ServiceConfiguration** is recommended way of creating configuration 
+for services even though actual configuration is a simple array and can be 
+created manually but this utility class helps to avoid mistakes.
+Using this class does not create bunch of objects so it has almost no overhead. 
+Downside is that one have to call ->get() at the very end of each definition
 
 
 ```php
