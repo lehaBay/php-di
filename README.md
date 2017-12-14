@@ -2,20 +2,7 @@
 
 **Simple** and **fast** Dependency Injector. It supports autowire and autoloading.
 
-The main job of Dependency Injector is to Inject Dependencies (whoa!) not to 
-configure every single class-service.
-
-To reduce configuration here it comes, **autoloading**
-
-Just go get class by it's **full name** 
-from the DependencyInjector. 
-Make sure autoloading is on (which is by default) and 
-constructor has proper typehints(see example below) 
-
-
-Of course if some configuration needed it can be done.
-
-
+requires php 7.0 +
 # Easy to install with **composer**
 
 ```sh
@@ -31,7 +18,13 @@ $di = new \Fastero\DependencyInjector\DependencyInjector();
 $user = $di->get(User::class);
 
 ```
-As easy as this, no configuration needed just proper typehins for the constructor(see below)
+As simple as this, no configuration needed just proper typehins 
+for the constructor.
+
+Of course by very definition of 
+**dependency injector** you don't usually call $di->get() often,
+only in a very core of the application and then let all the dependencies
+to be injected.
 
 
 More complete examples:
@@ -103,7 +96,7 @@ $configuration = [
     ];
     
 ```
-So, creating configuration must be started with one of the **->setup\*(..)** methods and finished with **->get()** method which actually returns configuration array
+So creating configuration must be started with one of the **->setup\*(..)** methods and finished with **->get()** method which actually returns configuration array
 
 ```php
 $di = new Fastero\DependencyInjector\DependencyInjector($configuration);
